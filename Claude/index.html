@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="健康计划">
+<meta name="theme-color" content="#3E7C59">
+<title>我的12周健康计划</title>
+<style>
+  :root{
+    --bg:#F3F6EE; --bg-alt:#E7EFDF; --card:#FFFFFF; --ink:#1E2A22; --ink-soft:#5B6B5F;
+    --accent:#3E7C59; --accent-soft:#DCEBE1; --warm:#D6A429; --warm-soft:#FBF0D9;
+    --red:#C1694F; --border:#DCE5D2;
+    --shadow:0 1px 2px rgba(30,42,34,.06),0 6px 20px rgba(30,42,34,.06); --radius:16px;
+  }
+  [data-theme="dark"]{
+    --bg:#121C16; --bg-alt:#182319; --card:#1B271F; --ink:#E9F0E6; --ink-soft:#9AAB9F;
+    --accent:#6FBF93; --accent-soft:#213329; --warm:#E8BA5C; --warm-soft:#2B2417;
+    --red:#E08B72; --border:#28352C;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;min-height:100vh;padding-bottom:92px;transition:background .3s}
+  header{position:sticky;top:0;z-index:10;background:var(--bg);padding:18px 18px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+  header h1{font-size:20px;margin:0;font-weight:700}
+  header .sub{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .theme-toggle{width:38px;height:38px;border-radius:50%;background:var(--card);border:1px solid var(--border);font-size:16px;cursor:pointer;box-shadow:var(--shadow);flex:none}
+  main{padding:14px 16px 8px;max-width:600px;margin:0 auto}
+  h2{font-size:17px;margin:4px 0 10px}
+  h3{font-size:14.5px;margin:16px 0 8px}
+  .hint{font-size:12.5px;color:var(--ink-soft);line-height:1.7;background:var(--bg-alt);border-radius:12px;padding:10px 12px;margin:0 0 12px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);font-size:13.5px;line-height:1.75}
+  .card b{color:var(--ink)}
+  .note{background:var(--warm-soft);border:1px solid var(--warm);border-radius:12px;padding:11px 13px;font-size:12.5px;line-height:1.7;margin-bottom:12px}
+  .muted{font-size:12px;color:var(--ink-soft)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--ink-soft);font-weight:600;font-size:12px}
+  tr:last-child td,tr:last-child th{border-bottom:none}
+  .kcal{color:var(--accent);font-size:11px;font-weight:600}
+  ul.clean{margin:0;padding-left:2px;list-style:none}
+  ul.clean li{padding:4px 0;font-size:13px;line-height:1.65}
+  ol.pflow{margin:6px 0 0;padding-left:20px}
+  ol.pflow li{padding:3px 0;font-size:13px;line-height:1.65}
+
+  /* week chips */
+  .weeksel{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;-webkit-overflow-scrolling:touch}
+  .weeksel.hide{display:none}
+  .wk{flex:none;font-size:12.5px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--ink-soft);padding:7px 13px;border-radius:100px;cursor:pointer;text-decoration:none}
+  .wk.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  /* menu day */
+  .day{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .dh{font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+  .meal{display:flex;gap:9px;align-items:flex-start;padding:5px 0;font-size:13px;line-height:1.55}
+  .ml{flex:none;width:22px;height:22px;border-radius:7px;background:var(--bg-alt);color:var(--ink-soft);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .din{display:flex;gap:9px;align-items:flex-start;width:100%;text-align:left;background:var(--accent-soft);border:none;border-radius:10px;padding:8px 9px;margin:4px 0;cursor:pointer;font-family:inherit;font-size:13px;line-height:1.5;color:var(--ink)}
+  .ml-l{background:var(--warm-soft);color:var(--warm)}
+  .ml-d{background:var(--accent);color:#fff}
+  .dintxt{flex:1}
+  .see{flex:none;font-size:11px;color:var(--accent);font-weight:700;margin-top:2px}
+
+  /* cook cards */
+  .sech{font-size:13px;font-weight:800;color:var(--ink-soft);margin:14px 0 8px}
+  .cookgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .cookcard{position:relative;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 12px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow)}
+  .cookcard.lc{background:var(--warm-soft)}
+  .cn{display:block;font-size:13.5px;font-weight:800;color:var(--ink)}
+  .ct{display:block;font-size:11px;color:var(--ink-soft);margin-top:3px}
+  .fav{position:absolute;top:8px;right:10px;font-size:12px;color:var(--border)}
+  .fav.on{color:var(--red)}
+
+  /* prep chips */
+  .pchips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+  .pchip{font-size:12.5px;font-weight:600;background:var(--accent-soft);color:var(--accent);border:none;border-radius:100px;padding:7px 12px;cursor:pointer;font-family:inherit}
+  .pchip.fresh{background:var(--warm-soft);color:var(--warm)}
+  .pnote{font-size:12px;color:var(--ink-soft);line-height:1.6;width:100%}
+
+  /* shop */
+  .shopbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--ink-soft)}
+  .pbar{flex:1;min-width:90px;height:8px;background:var(--bg-alt);border-radius:100px;overflow:hidden}
+  .pbar i{display:block;height:100%;width:0;background:var(--accent);border-radius:100px;transition:width .3s}
+  .tog{display:flex;align-items:center;gap:5px;cursor:pointer}
+  .tog input{accent-color:var(--accent)}
+  .resetbtn{font-size:12px;color:var(--ink-soft);background:none;border:1px dashed var(--border);border-radius:100px;padding:5px 11px;cursor:pointer}
+  .stchips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+  .stchip{font-size:12px;font-weight:700;border:1px solid var(--border);background:var(--card);color:var(--ink-soft);border-radius:100px;padding:6px 12px;cursor:pointer;font-family:inherit}
+  .stchip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .stlegend{font-size:11.5px;color:var(--ink-soft);line-height:1.7;margin-bottom:12px}
+  .shopgroup{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .shopgroup h5{margin:0 0 6px;font-size:13.5px}
+  .shoplist{list-style:none;margin:0;padding:0}
+  .buy{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer}
+  .buy:last-child{border-bottom:none}
+  .buy .box{flex:none;width:18px;height:18px;border:2px solid var(--border);border-radius:6px}
+  .buy.done .box{background:var(--accent);border-color:var(--accent)}
+  .buy.done .txt{text-decoration:line-through;color:var(--ink-soft)}
+  .buy .txt{flex:1}
+  .stbadge{flex:none;font-size:10.5px;font-weight:800;padding:3px 7px;border-radius:100px}
+  .st-NF{background:var(--warm-soft);color:var(--warm)}
+  .st-FB{background:var(--accent-soft);color:var(--accent)}
+  .st-TT{background:#F3E3EE;color:#A2527F}
+  [data-theme="dark"] .st-TT{background:#33202C;color:#D98BB8}
+  .buy.hidden{display:none}
+
+  /* overlay recipe */
+  #overlay{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;overflow-y:auto}
+  #overlay.open{display:block}
+  .ovbar{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border);z-index:2}
+  .ovback{border:none;background:none;color:var(--accent);font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;padding:0}
+  .ovtitle{flex:1;font-size:16px;font-weight:800;text-align:center}
+  .ovwake{border:1px solid var(--border);background:var(--card);color:var(--ink-soft);font-size:11.5px;border-radius:100px;padding:6px 10px;cursor:pointer;font-family:inherit}
+  .ovwake.on{background:var(--warm-soft);color:var(--warm);border-color:var(--warm)}
+  .ovbody{padding:16px;max-width:600px;margin:0 auto}
+  .rtag2{display:inline-block;font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:100px;padding:5px 12px;margin-bottom:8px}
+  .lonote{background:var(--warm-soft);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.65;margin-bottom:8px}
+  .ingr-list{list-style:none;margin:0;padding:0}
+  .ingr-list li{display:flex;gap:9px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;cursor:pointer}
+  .ingr-list li:last-child{border-bottom:none}
+  .ingr-list .cb{flex:none;width:18px;height:18px;border:2px solid var(--border);border-radius:6px}
+  .ingr-list li.got .cb{background:var(--accent);border-color:var(--accent)}
+  .ingr-list li.got span:last-child{text-decoration:line-through;color:var(--ink-soft)}
+  .steps{list-style:none;margin:0;padding:0}
+  .steps li{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--border);font-size:15px;line-height:1.7;cursor:pointer}
+  .steps li:last-child{border-bottom:none}
+  .steps .sn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .steps li.done{opacity:.4}
+  .steps li.done span:last-child{text-decoration:line-through}
+  .favbtn{margin-top:14px;width:100%;border:1px solid var(--border);background:var(--card);color:var(--ink-soft);border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+  .favbtn.on{color:var(--red);border-color:var(--red)}
+
+  /* breakfast pool */
+  .pool{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .poolcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.6;box-shadow:var(--shadow)}
+
+  /* plan ring */
+  .ring-wrap{display:flex;align-items:center;gap:18px}
+  .ring{position:relative;width:100px;height:100px;flex:none}
+  .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .ring circle{fill:none;stroke-width:9}
+  .ring .track{stroke:var(--bg-alt)}
+  .ring .prog{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset .4s}
+  .ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring .num b{font-size:25px;line-height:1}
+  .ring .num span{font-size:10.5px;color:var(--ink-soft);margin-top:2px}
+  .week-controls{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .week-controls button{width:33px;height:33px;border-radius:50%;border:1px solid var(--border);background:var(--bg-alt);color:var(--ink);font-size:16px;cursor:pointer}
+  .phase-tag{display:inline-block;font-size:11.5px;font-weight:800;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:100px}
+  .pill-list{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{font-size:12px;background:var(--warm-soft);color:var(--warm);padding:5px 11px;border-radius:100px;font-weight:800}
+
+  /* weight */
+  .input-row{display:flex;gap:8px;margin:8px 0}
+  .input-row input{border:1px solid var(--border);background:var(--bg-alt);color:var(--ink);border-radius:10px;padding:8px 10px;font-size:13px;font-family:inherit;min-width:0}
+  .input-row input[type=date]{flex:1.3}
+  .input-row input[type=number]{flex:1}
+  .input-row button{border:none;background:var(--accent);color:#fff;font-weight:800;border-radius:10px;padding:8px 15px;font-size:13px;cursor:pointer;flex:none;font-family:inherit}
+  .weight-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .weight-row:last-child{border-bottom:none}
+  .weight-row .d{color:var(--ink-soft);font-size:12px}
+  .weight-row .v{font-weight:800}
+  .delta{font-size:11.5px;margin-left:6px}
+  .delta.down{color:var(--accent)}
+  .delta.up{color:var(--red)}
+
+  /* move grid */
+  .day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:6px 0 2px}
+  .day-cell{aspect-ratio:1;border-radius:12px;border:1px solid var(--border);background:var(--bg-alt);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none;font-size:11px;color:var(--ink-soft);gap:4px}
+  .day-cell .dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+  .day-cell.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .day-cell.on .dot{background:#fff}
+
+  .disclaimer{background:var(--warm-soft);border:1px solid var(--warm);border-radius:14px;padding:12px 14px;font-size:12.5px;line-height:1.7}
+  .foot2{font-size:12px;color:var(--ink-soft);line-height:1.7;padding:4px 2px 10px}
+
+  nav.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:20;background:var(--card);border-top:1px solid var(--border);display:flex;padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
+  nav.tabbar button{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 1px;cursor:pointer;color:var(--ink-soft);font-family:inherit}
+  nav.tabbar button .ic{font-size:18px}
+  nav.tabbar button .lb{font-size:10px;font-weight:700}
+  nav.tabbar button.on{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>我的12周健康计划 🌿</h1>
+    <div class="sub">31岁 · 160cm · 多伦多 · 减脂 &amp; 改善血脂 · 1400–1600大卡</div>
+  </div>
+  <button class="theme-toggle" onclick="tg()">🌗</button>
+</header>
+<main>
+  <div id="weeksel" class="weeksel"></div>
+  <div id="panel"></div>
+</main>
+<div id="overlay"></div>
+<nav class="tabbar">
+  <button data-m="plan" onclick="setMode('plan')"><span class="ic">📅</span><span class="lb">计划</span></button>
+  <button data-m="menu" onclick="setMode('menu')"><span class="ic">🍽️</span><span class="lb">菜单</span></button>
+  <button data-m="prep" onclick="setMode('prep')"><span class="ic">🥘</span><span class="lb">备餐</span></button>
+  <button data-m="shop" onclick="setMode('shop')"><span class="ic">🛒</span><span class="lb">买菜</span></button>
+  <button data-m="move" onclick="setMode('move')"><span class="ic">🏋️</span><span class="lb">运动</span></button>
+  <button data-m="info" onclick="setMode('info')"><span class="ic">📖</span><span class="lb">说明</span></button>
+</nav>
+<script>
+var DATA={weeks:[
+{n:1,theme:"家常经典",sub:"零失败的家常味，先把节奏跑顺。每天约1450–1550大卡·蛋白95–110g。",fresh:[3,6],
+days:[
+{d:"一",bf:"① 燕麦豆浆蛋 · 燕麦+无糖豆浆+水煮蛋+蓝莓",lt:"cook",lc:"l",li:0,lunchText:"照烧鸡胸便当",dinner:"🍅 番茄龙利鱼 + 蒜蓉油麦菜 + 糙米",di:0,snack:"希腊酸奶"},
+{d:"二",bf:"③ 番茄炒蛋吐司 · 少油番茄炒蛋+全麦吐司+无糖豆浆",lt:"lo",lc:"d",li:0,lunchText:"备餐·番茄龙利鱼（热一下）",dinner:"🍗 照烧去皮鸡腿 + 白灼菜心 + 红薯",di:1,snack:"毛豆一把"},
+{d:"三",bf:"② 酸奶燕麦碗 · 希腊酸奶+燕麦+核桃+香蕉",lt:"cook",lc:"l",li:1,lunchText:"香干芹菜鸡丝",dinner:"🌶 鸡末麻婆豆腐 + 蒜香菠菜 + 糙米",di:2,snack:"黄瓜条"},
+{d:"四",bf:"① 燕麦豆浆蛋 · 燕麦+无糖豆浆+水煮蛋+蓝莓",lt:"lo",lc:"d",li:2,lunchText:"备餐·麻婆豆腐（热一下）",dinner:"🦐 姜醋白灼虾 + 香菇青菜 + 玉米",di:3,snack:"苹果+核桃"},
+{d:"五",bf:"④ 蔬菜蛋饼 · 胡萝卜菠菜鸡蛋饼(少油)+无糖豆浆",lt:"cook",lc:"l",li:2,lunchText:"金枪鱼糙米沙拉",dinner:"🫑 黑椒鸡胸彩椒 + 糙米",di:4,snack:"无糖豆浆"},
+{d:"六",bf:"⑤ 鸡丝燕麦粥 · 鸡丝香菇燕麦粥+凉拌黄瓜",lt:"lo",lc:"d",li:4,lunchText:"备餐·黑椒鸡胸（热一下）",dinner:"🍄 香菇蒸滑鸡 + 蚝油生菜 + 糙米",di:5,snack:"希腊酸奶"},
+{d:"日",bf:"⑥ 花生酱吐司 · 天然花生酱薄涂全麦吐司+酸奶+苹果",lt:"lo",lc:"d",li:5,lunchText:"备餐·香菇蒸滑鸡（热一下）",dinner:"🐟 香煎三文鱼 + 蒜蓉西兰花 + 红薯",di:6,snack:"小番茄"}],
+dinners:[
+{name:"番茄龙利鱼",tag:"低脂·高蛋白·酸甜开胃",ingrList:["龙利鱼(巴沙鱼)生重200g","番茄2个","蒜末·姜末·葱","生抽1勺","番茄酱1勺","盐·淀粉少许","油1茶匙"],steps:["鱼解冻切块，加盐、料酒、淀粉抓匀腌10分钟","番茄切块，热锅1茶匙油炒到出沙出汁","加半碗水+生抽+番茄酱煮开","下鱼块轻推，中小火煮3–4分钟至熟，撒葱花配糙米"]},
+{name:"照烧去皮鸡腿",tag:"嫩滑下饭·去皮少饱和脂肪",ingrList:["去骨去皮鸡腿肉生重180g","生抽1.5勺","味淋/料酒1勺","蜂蜜或糖½勺","蒜","油1茶匙"],steps:["鸡腿用叉子扎孔，少许盐抓匀","不粘锅1茶匙油，中火煎到两面金黄","倒入生抽+味淋+½勺糖+2勺水，收汁裹匀","切块，配白灼菜心和红薯"]},
+{name:"鸡末麻婆豆腐",tag:"川味·鸡胸末替牛末更清爽",ingrList:["嫩豆腐1盒","鸡胸肉末生重80g","郫县豆瓣酱1勺","蒜姜·葱","花椒粉","生抽·淀粉水","油1茶匙"],steps:["豆腐切块，淡盐水焯1分钟捞出","1茶匙油炒香鸡末，加豆瓣酱+蒜姜炒出红油","加1碗水+生抽煮开，轻推入豆腐煮3分钟","淋淀粉水勾薄芡，撒花椒粉葱花"]},
+{name:"姜醋白灼虾",tag:"零负担·鲜甜原味",ingrList:["鲜虾生重220g","姜·葱·料酒","蘸料：姜末+香醋+一点生抽"],steps:["水中加姜片葱段料酒煮开","下虾煮到变红卷起约2–3分钟捞出","调姜末香醋蘸料","配香菇青菜和玉米，几乎不用油"]},
+{name:"黑椒鸡胸彩椒",tag:"西式风·嫩不柴",ingrList:["鸡胸生重150g","黑胡椒·蒜","洋葱·彩椒","生抽1勺","蚝油½勺","淀粉","油1茶匙"],steps:["鸡胸片薄片，加生抽+黑胡椒+淀粉腌10分钟","1茶匙油中火煎鸡胸到两面变色盛出","下洋葱彩椒炒香，回锅加蚝油+黑胡椒","翻匀出锅，配糙米"]},
+{name:"香菇蒸滑鸡",tag:"免油烟·一碗蒸出来",ingrList:["去皮鸡腿肉生重180g","干香菇泡发","姜丝","生抽1勺·蚝油½勺","淀粉·几滴油"],steps:["香菇切片，鸡肉切块","加生抽+蚝油+姜丝+淀粉+几滴油抓匀腌15分钟","平铺盘中，水开后大火蒸12–15分钟","撒葱花，配蚝油生菜和糙米"]},
+{name:"香煎三文鱼",tag:"omega-3主力·每周1次",ingrList:["三文鱼排生重180g","盐·黑胡椒","蒜末","柠檬(或香醋几滴)","橄榄油1茶匙"],steps:["鱼排厨房纸擦干，两面撒盐和黑胡椒","1茶匙油中火，皮朝下煎3–4分钟到金黄再翻面2–3分钟","关火前撒蒜末、挤柠檬汁","配蒜蓉西兰花和红薯"]}],
+lunches:[
+{name:"照烧鸡胸便当",tag:"快手·高蛋白·可带饭",ingrList:["鸡胸生重140g","生抽1.5勺","味淋/料酒1勺","糖½勺","西兰花·糙米","油1茶匙"],steps:["鸡胸片薄、拍松，少许盐腌5分钟","1茶匙油中火煎到两面金黄","倒生抽+味淋+½勺糖+2勺水收汁裹匀，切块","配焯熟西兰花和糙米，可分装当便当"]},
+{name:"香干芹菜鸡丝",tag:"下饭·脆爽",ingrList:["鸡胸生重120g","香干2片","芹菜2根","蒜·生抽·料酒·淀粉","油1茶匙"],steps:["鸡胸切丝，生抽料酒淀粉腌10分钟","香干、芹菜切丝","1茶匙油滑散鸡丝盛出","下芹菜香干炒断生，回鸡丝生抽调味"]},
+{name:"金枪鱼糙米沙拉",tag:"罐头即食·omega-3",ingrList:["水浸金枪鱼罐头1罐(沥干)","糙米1碗","黄瓜半根切丁","小番茄一把切半","柠檬汁+橄榄油1茶匙+黑胡椒"],steps:["所有食材拌在一起即可","冷食热食都行，适合前一晚做好带饭","想更饱腹可加半罐鹰嘴豆"]}],
+shop:{"🥩 蛋白":[["龙利鱼/巴沙鱼 1盒","TT"],["去骨去皮鸡腿 约1.5lb","NF"],["鸡胸肉 约1.5lb","FB"],["冷冻鲜虾 约1lb","TT"],["三文鱼排 约¾lb","FB"],["嫩豆腐 1盒","TT"],["香干 1包","TT"],["水浸金枪鱼罐头 2罐","NF"],["鸡蛋 1打","NF"]],
+"🥬 蔬菜":[["番茄 4–5个","NF"],["油麦菜/菜心 各1把","TT"],["菠菜 1把","NF"],["西兰花 1颗","NF"],["干香菇 1小包","TT"],["青菜/生菜 2把","NF"],["彩椒+洋葱 各2","NF"],["芹菜 1把","NF"],["黄瓜 2根","NF"],["玉米 2根","NF"]],
+"🍚 主食/杂粮":[["糙米 5lb","TT"],["红薯 2lb","NF"],["大桶燕麦 1桶","NF"],["全麦吐司 1条","NF"]],
+"🥛 早餐/加餐":[["无糖豆浆 1.89L","TT"],["无糖希腊酸奶 750g","NF"],["核桃 1包","NF"],["蓝莓 1盒","FB"],["香蕉+苹果","NF"],["小番茄 1盒","NF"],["冷冻毛豆 1袋","TT"],["天然花生酱(只含花生) 1罐","NF"]],
+"🧂 调味/其他":[["生抽·蚝油·蒸鱼豉油","TT"],["料酒·香醋","TT"],["郫县豆瓣酱","TT"],["黑胡椒·花椒粉","TT"],["姜蒜葱","NF"],["橄榄油/菜籽油","NF"],["淀粉·番茄酱·蜂蜜(少量)","NF"]]}},
+{n:2,theme:"豆香高纤",sub:"豆类+燕麦是降血脂主力，这周多安排。每天约1450–1550大卡·蛋白95–110g。",fresh:[0,3],
+days:[
+{d:"一",bf:"① 燕麦豆浆蛋 · 燕麦+无糖豆浆+水煮蛋+蓝莓",lt:"cook",lc:"l",li:0,lunchText:"番茄鸡蛋豆腐汤便当",dinner:"🦐 冬瓜虾仁 + 蒜蓉空心菜 + 糙米",di:0,snack:"希腊酸奶"},
+{d:"二",bf:"② 酸奶燕麦碗 · 希腊酸奶+燕麦+核桃+香蕉",lt:"lo",lc:"d",li:1,lunchText:"备餐·宫保鸡丁（热一下）",dinner:"🥜 宫保鸡丁(少油少糖) + 清炒时蔬 + 糙米",di:1,snack:"毛豆一把"},
+{d:"三",bf:"④ 蔬菜蛋饼 · 胡萝卜菠菜鸡蛋饼(少油)+无糖豆浆",lt:"lo",lc:"d",li:2,lunchText:"备餐·番茄炖牛腱（热一下）",dinner:"🍅 番茄炖牛腱(瘦·本周唯一红肉) + 白灼西兰花 + 糙米",di:2,snack:"黄瓜条"},
+{d:"四",bf:"① 燕麦豆浆蛋 · 燕麦+无糖豆浆+水煮蛋+蓝莓",lt:"cook",lc:"l",li:2,lunchText:"蒜蓉西兰花虾仁",dinner:"🐟 清蒸龙利鱼(豉油葱姜) + 上汤娃娃菜 + 玉米",di:3,snack:"苹果+核桃"},
+{d:"五",bf:"③ 番茄炒蛋吐司 · 少油番茄炒蛋+全麦吐司+无糖豆浆",lt:"cook",lc:"l",li:1,lunchText:"鹰嘴豆蔬菜咖喱",dinner:"🫘 黄豆焖去皮鸡腿 + 蒜香油麦菜 + 糙米",di:4,snack:"无糖豆浆"},
+{d:"六",bf:"⑤ 鸡丝燕麦粥 · 鸡丝香菇燕麦粥+凉拌黄瓜",lt:"lo",lc:"d",li:4,lunchText:"备餐·黄豆焖鸡腿（热一下）",dinner:"🐟 三文鱼罐头蔬菜饼 + 大拌菜 + 红薯",di:5,snack:"希腊酸奶"},
+{d:"日",bf:"⑥ 花生酱吐司 · 天然花生酱薄涂全麦吐司+酸奶+苹果",lt:"lo",lc:"l",li:1,lunchText:"备餐·鹰嘴豆咖喱（热一下）",dinner:"🥬 娃娃菜豆腐虾仁煲 + 糙米",di:6,snack:"小番茄"}],
+dinners:[
+{name:"冬瓜虾仁",tag:"清鲜·超低脂",ingrList:["虾仁生重180g","冬瓜300g","姜·葱","蚝油½勺","盐·淀粉","油1茶匙"],steps:["冬瓜去皮切薄片；虾仁加盐淀粉抓匀","1茶匙油爆香姜，下冬瓜炒软加半碗水焖3分钟","下虾仁煮到变红","加蚝油盐调味，淀粉水勾薄芡，撒葱花"]},
+{name:"宫保鸡丁",tag:"少油少糖版·还是那个味",ingrList:["鸡胸/去皮鸡腿生重160g","黄瓜丁","花生一小把","干辣椒·花椒","蒜姜","生抽+香醋+½勺糖+淀粉调汁","油1茶匙"],steps:["鸡肉切丁，生抽+淀粉腌10分钟","1茶匙油炒香干辣椒花椒，下鸡丁炒变色","下黄瓜丁翻炒，倒入调好的酱汁收匀","撒花生(后放保脆)，配糙米"]},
+{name:"番茄炖牛腱(瘦)",tag:"红肉每周≤1次·选最瘦的部位",ingrList:["瘦牛腱生重180g","番茄3个","洋葱·姜·八角1颗","生抽","油1茶匙"],steps:["牛腱冷水焯去血沫捞出","1茶匙油炒番茄洋葱出沙，下牛肉+八角+生抽","加水没过，小火炖60–90分钟至软","收汁调味，汤汁拌糙米一流"]},
+{name:"清蒸龙利鱼",tag:"豉油葱姜·家常粤味",ingrList:["龙利鱼生重200g","姜丝·葱丝","蒸鱼豉油2勺","油1茶匙"],steps:["鱼解冻擦干，抹少许盐料酒铺姜片","水开大火蒸7–8分钟，倒掉汤水","铺葱姜丝淋豉油","1茶匙热油激香，配上汤娃娃菜"]},
+{name:"黄豆焖去皮鸡腿",tag:"大豆蛋白+可溶纤维·血脂友好",ingrList:["去皮鸡腿生重180g","干黄豆半杯(提前泡4小时+)","姜·八角","生抽1勺","油1茶匙"],steps:["黄豆提前泡发；鸡腿切块","1茶匙油炒香姜，下鸡块炒变色","加黄豆+水没过+生抽，小火焖25分钟","收汁撒葱花，配蒜香油麦菜"]},
+{name:"三文鱼罐头蔬菜饼",tag:"平价omega-3·罐头就行",ingrList:["三文鱼罐头1罐(沥干压碎)","鸡蛋1个","燕麦碎2勺","洋葱碎·胡萝卜碎","油1茶匙"],steps:["所有材料拌匀，静置5分钟让燕麦吸水","捏成4个小饼","平底锅1茶匙油，中小火每面煎3分钟到金黄","配大拌菜和烤红薯"]},
+{name:"娃娃菜豆腐虾仁煲",tag:"一锅暖·几乎不用油",ingrList:["娃娃菜2棵","嫩豆腐1盒","虾仁生重120g","蒜·姜","盐·白胡椒","油1茶匙"],steps:["1茶匙油爆香蒜姜，加2碗水煮开","下豆腐块和娃娃菜梗煮5分钟","下娃娃菜叶和虾仁煮2–3分钟到虾变红","盐+白胡椒调味，连汤配糙米"]}],
+lunches:[
+{name:"番茄鸡蛋豆腐汤便当",tag:"暖胃·快手",ingrList:["嫩豆腐半盒","鸡蛋2个","番茄1个","葱·盐","油1茶匙"],steps:["番茄切块，1茶匙油炒软，加2碗水煮开","下豆腐块煮3分钟","淋蛋液成蛋花，加盐","撒葱花，配糙米"]},
+{name:"鹰嘴豆蔬菜咖喱",tag:"高纤·一锅出·可冷冻",ingrList:["鹰嘴豆罐头1罐(沥干)","洋葱半个·蒜","咖喱粉1勺","番茄罐头半罐","菠菜一把","油1茶匙"],steps:["洋葱炒软，加蒜末咖喱粉炒香","倒入鹰嘴豆和番茄罐头煮10分钟","加菠菜煮至变软","配糙米，多做的分盒冷冻"]},
+{name:"蒜蓉西兰花虾仁",tag:"高蛋白·清爽",ingrList:["虾仁生重140g","西兰花1颗","蒜·盐","油1茶匙"],steps:["西兰花焯1分钟","1茶匙油爆蒜，炒虾仁到变红","下西兰花快炒加盐"]}],
+shop:{"🥩 蛋白":[["冷冻虾仁 约1.5lb","TT"],["鸡胸/去皮鸡腿 约1.5lb","NF"],["瘦牛腱 约1lb","NF"],["龙利鱼 1盒","TT"],["嫩豆腐 2盒","TT"],["三文鱼罐头 2罐","NF"],["鹰嘴豆罐头 2罐","NF"],["干黄豆 1袋","TT"],["鸡蛋 1打","NF"]],
+"🥬 蔬菜":[["冬瓜 一段","TT"],["空心菜 1把","TT"],["黄瓜 2根","NF"],["番茄 5–6个","NF"],["洋葱 2个","NF"],["西兰花 2颗","NF"],["娃娃菜 2棵","TT"],["油麦菜 1把","TT"],["菠菜 1把","NF"],["胡萝卜 1把","NF"],["玉米 2根","NF"]],
+"🍚 主食/杂粮":[["糙米(上周5lb没吃完可跳过)","TT"],["红薯 2lb","NF"],["燕麦(上周有可跳过)","NF"],["全麦吐司 1条","NF"]],
+"🥛 早餐/加餐":[["无糖豆浆 1.89L","TT"],["无糖希腊酸奶 750g","NF"],["核桃+花生 各1包","NF"],["蓝莓 1盒","FB"],["香蕉+苹果","NF"],["小番茄 1盒","NF"]],
+"🧂 调味/其他":[["咖喱粉 1罐","NF"],["番茄罐头 2罐","NF"],["八角·干辣椒·花椒","TT"],["姜蒜葱","NF"],["其余酱料上周已备","TT"]]}},
+{n:3,theme:"清爽粤式",sub:"蒸、灼、煎为主，清淡不寡淡。每天约1450–1550大卡·蛋白95–110g。",fresh:[0,2,5],
+days:[
+{d:"一",bf:"② 酸奶燕麦碗 · 希腊酸奶+燕麦+核桃+香蕉",lt:"lo",lc:"d",li:1,lunchText:"备餐·少油口水鸡（热一下）",dinner:"🥦 西兰花炒虾仁 + 虾皮紫菜汤 + 糙米",di:0,snack:"希腊酸奶"},
+{d:"二",bf:"① 燕麦豆浆蛋 · 燕麦+无糖豆浆+水煮蛋+蓝莓",lt:"cook",lc:"l",li:0,lunchText:"番茄鸡蛋盖饭",dinner:"🐔 少油口水鸡(手撕) + 蒜蓉菜心 + 糙米",di:1,snack:"毛豆一把"},
+{d:"三",bf:"④ 蔬菜蛋饼 · 胡萝卜菠菜鸡蛋饼(少油)+无糖豆浆",lt:"lo",lc:"d",li:3,lunchText:"备餐·香煎鸡胸（热一下）",dinner:"🍳 虾仁蒸水蛋 + 上汤菠菜 + 红薯",di:2,snack:"黄瓜条"},
+{d:"四",bf:"③ 番茄炒蛋吐司 · 少油番茄炒蛋+全麦吐司+无糖豆浆",lt:"cook",lc:"l",li:1,lunchText:"香煎鸡胸蔬菜便当",dinner:"🍗 香煎鸡胸配时蔬 + 番茄豆腐汤 + 糙米",di:3,snack:"苹果+核桃"},
+{d:"五",bf:"① 燕麦豆浆蛋 · 燕麦+无糖豆浆+水煮蛋+蓝莓",lt:"cook",lc:"l",li:2,lunchText:"豆腐蔬菜汤+煮蛋",dinner:"🥬 白菜豆腐炖鸡 + 玉米",di:4,snack:"无糖豆浆"},
+{d:"六",bf:"⑤ 鸡丝燕麦粥 · 鸡丝香菇燕麦粥+凉拌黄瓜",lt:"lo",lc:"d",li:4,lunchText:"备餐·白菜豆腐炖鸡（热一下）",dinner:"🐟 香草柠檬烤三文鱼 + 同烤时蔬 + 红薯",di:5,snack:"希腊酸奶"},
+{d:"日",bf:"⑥ 花生酱吐司 · 天然花生酱薄涂全麦吐司+酸奶+苹果",lt:"lo",lc:"d",li:5,lunchText:"备餐·烤三文鱼（热一下）",dinner:"🥩 蚝油牛肉西兰花(瘦·本周唯一红肉) + 糙米",di:6,snack:"小番茄"}],
+dinners:[
+{name:"西兰花炒虾仁",tag:"清爽高蛋白",ingrList:["虾仁生重180g","西兰花1颗","蒜","盐·蚝油½勺","淀粉","油1茶匙"],steps:["西兰花掰小朵焯水1分钟捞出","虾仁加盐淀粉抓匀","1茶匙油爆蒜下虾仁炒到变红","下西兰花+蚝油快炒出锅"]},
+{name:"少油口水鸡",tag:"川味凉菜·手撕开胃",ingrList:["鸡胸/去皮鸡腿生重180g","姜葱·料酒","料汁：生抽+香醋+蒜末+少许辣椒油+一点糖+熟芝麻"],steps:["鸡肉加姜葱料酒冷水下锅，滚后关火焖12分钟","捞出冰水泡凉后手撕成条","调好料汁","淋在鸡肉上撒葱花芝麻，配蒜蓉菜心"]},
+{name:"虾仁蒸水蛋",tag:"嫩到抖·低脂",ingrList:["鸡蛋3个","虾仁生重100g","温水(蛋液1.5倍)","生抽·香油几滴","葱花"],steps:["蛋液加温水和少许盐打匀，过筛倒碗里","盖保鲜膜扎几个孔，水开中火蒸10分钟","铺虾仁再蒸3分钟到虾变红","淋生抽+几滴香油撒葱花"]},
+{name:"香煎鸡胸配时蔬",tag:"外焦里嫩·不柴秘诀",ingrList:["鸡胸生重150g","黑胡椒·盐·蒜粉","少许淀粉","时蔬(西葫芦/彩椒)","油1茶匙"],steps:["鸡胸横切两片拍松，盐+黑胡椒+蒜粉+淀粉腌15分钟","1茶匙油中小火每面煎3–4分钟","关火焖2分钟锁汁再切","旁边煎时蔬，配番茄豆腐汤"]},
+{name:"白菜豆腐炖鸡",tag:"一锅暖汤菜",ingrList:["去皮鸡腿生重160g","白菜半棵","老豆腐1盒","姜·生抽","油1茶匙"],steps:["1茶匙油炒香姜和鸡块","加水+生抽煮10分钟","下白菜梗和豆腐煮8分钟","下白菜叶再煮2分钟调味"]},
+{name:"香草柠檬烤三文鱼",tag:"烤箱无油烟·omega-3",ingrList:["三文鱼排生重180g","盐·黑胡椒·干香草(可省)","柠檬片","西兰花·彩椒同烤","橄榄油1茶匙"],steps:["鱼排擦干，两面抹盐黑胡椒，铺柠檬片","蔬菜拌1茶匙油和盐铺周围","200°C烤12–15分钟","挤柠檬汁，配烤红薯"]},
+{name:"蚝油牛肉西兰花",tag:"红肉每周≤1次·选瘦牛柳",ingrList:["瘦牛柳生重160g","西兰花1颗","蒜","蚝油1勺·生抽","淀粉","油1茶匙"],steps:["牛肉逆纹切片，生抽+淀粉+几滴油腌15分钟","西兰花焯水铺盘","1茶匙油大火快滑牛肉到变色","加蚝油翻匀，铺在西兰花上"]}],
+lunches:[
+{name:"番茄鸡蛋盖饭",tag:"家常·快手",ingrList:["番茄2个","鸡蛋3个","蒜·生抽·少许糖","糙米","油1茶匙"],steps:["鸡蛋打散炒成块盛出","1茶匙油炒番茄出沙，加少许生抽和糖","回鸡蛋略炒","浇在糙米饭上"]},
+{name:"香煎鸡胸蔬菜便当",tag:"高蛋白·带饭",ingrList:["鸡胸生重140g","黑胡椒·蒜粉","生菜/番茄/黄瓜","橄榄油+柠檬或醋","糙米","油1茶匙"],steps:["鸡胸拍松，黑胡椒+蒜粉+盐腌15分钟","1茶匙油中小火每面煎3–4分钟，关火焖2分钟再切片","蔬菜垫底，淋少许橄榄油+柠檬/醋","配糙米分装带饭"]},
+{name:"豆腐蔬菜汤+煮蛋",tag:"清淡·低脂",ingrList:["老豆腐半盒","青菜·香菇","姜·盐·香油几滴","水煮蛋1个"],steps:["香菇+姜片加水煮开","下豆腐块煮5分钟","下青菜煮软加盐，滴几滴香油","配1个水煮蛋和糙米补蛋白"]}],
+shop:{"🥩 蛋白":[["冷冻虾仁 约1lb","TT"],["鸡胸肉 约1.5lb","FB"],["去皮鸡腿 约¾lb","NF"],["三文鱼排 约¾lb","FB"],["瘦牛柳 约½lb","NF"],["老豆腐 1盒","TT"],["嫩豆腐 1盒","TT"],["鸡蛋 1.5打","NF"]],
+"🥬 蔬菜":[["西兰花 2颗","NF"],["菜心 2把","TT"],["菠菜 1把","NF"],["西葫芦+彩椒","NF"],["生菜 2把","NF"],["白菜 1棵","TT"],["番茄 4个","NF"],["黄瓜 2根","NF"],["玉米 2根","NF"],["柠檬 2个","NF"]],
+"🍚 主食/杂粮":[["糙米(有货可跳过)","TT"],["红薯 2lb","NF"],["全麦吐司 1条","NF"]],
+"🥛 早餐/加餐":[["无糖豆浆 1.89L","TT"],["无糖希腊酸奶 750g","NF"],["核桃 1包","NF"],["蓝莓 1盒","FB"],["香蕉+苹果","NF"],["小番茄 1盒","NF"]],
+"🧂 调味/其他":[["辣椒油·熟芝麻","TT"],["紫菜·虾皮","TT"],["干香草(可省)","NF"],["姜蒜葱","NF"],["其余酱料已备","TT"]]}},
+{n:4,theme:"下饭微辣",sub:"辣是零热量的快乐，用香料代替油和糖。每天约1450–1550大卡·蛋白95–110g。",fresh:[3,6],
+days:[
+{d:"一",bf:"① 燕麦豆浆蛋 · 燕麦+无糖豆浆+水煮蛋+蓝莓",lt:"cook",lc:"l",li:0,lunchText:"凉拌鸡丝荞麦面",dinner:"🌶 剁椒蒸龙利鱼 + 蒜蓉油麦菜 + 糙米",di:0,snack:"希腊酸奶"},
+{d:"二",bf:"③ 番茄炒蛋吐司 · 少油番茄炒蛋+全麦吐司+无糖豆浆",lt:"lo",lc:"d",li:0,lunchText:"备餐·剁椒蒸鱼（热一下）",dinner:"🫑 杭椒小炒鸡 + 番茄蛋汤 + 糙米",di:1,snack:"毛豆一把"},
+{d:"三",bf:"② 酸奶燕麦碗 · 希腊酸奶+燕麦+核桃+香蕉",lt:"lo",lc:"d",li:1,lunchText:"备餐·杭椒小炒鸡（热一下）",dinner:"🍤 香锅风杂蔬虾(少油) + 糙米",di:2,snack:"黄瓜条"},
+{d:"四",bf:"① 燕麦豆浆蛋 · 燕麦+无糖豆浆+水煮蛋+蓝莓",lt:"cook",lc:"l",li:1,lunchText:"虾仁蛋炒糙米饭",dinner:"🥩 酸汤瘦牛肉(本周唯一红肉) + 金针菇 + 糙米",di:3,snack:"苹果+核桃"},
+{d:"五",bf:"④ 蔬菜蛋饼 · 胡萝卜菠菜鸡蛋饼(少油)+无糖豆浆",lt:"cook",lc:"l",li:2,lunchText:"番茄金枪鱼全麦意面",dinner:"🥦 干锅风花菜鸡片(少油) + 糙米",di:4,snack:"无糖豆浆"},
+{d:"六",bf:"⑤ 鸡丝燕麦粥 · 鸡丝香菇燕麦粥+凉拌黄瓜",lt:"lo",lc:"d",li:4,lunchText:"备餐·花菜鸡片（热一下）",dinner:"🍗 豆豉蒸鸡腿 + 蚝油生菜 + 玉米",di:5,snack:"希腊酸奶"},
+{d:"日",bf:"⑥ 花生酱吐司 · 天然花生酱薄涂全麦吐司+酸奶+苹果",lt:"lo",lc:"d",li:5,lunchText:"备餐·豆豉蒸鸡腿（热一下）",dinner:"🐟 黑椒香煎三文鱼 + 蒜蓉西兰花 + 红薯",di:6,snack:"小番茄"}],
+dinners:[
+{name:"剁椒蒸龙利鱼",tag:"湘味下饭·蒸的不用油",ingrList:["龙利鱼生重200g","剁椒2勺","蒜末·姜片","蒸鱼豉油1勺","油1茶匙"],steps:["鱼擦干抹少许料酒，铺姜片","水开大火蒸8分钟，倒掉汤水","铺剁椒蒜末，淋豉油","1茶匙热油激香，撒葱花配糙米"]},
+{name:"杭椒小炒鸡",tag:"微辣下饭·去皮鸡腿",ingrList:["去皮鸡腿生重170g","杭椒/青椒 6根","蒜·姜","生抽1勺·蚝油½勺","油1茶匙"],steps:["鸡腿切小块，生抽腌10分钟","1茶匙油中大火煸炒鸡块到微焦","下杭椒段和蒜姜炒断生","蚝油调味，大火翻匀出锅"]},
+{name:"香锅风杂蔬虾",tag:"麻辣香锅的快乐·油只要1茶匙",ingrList:["虾仁生重180g","花菜/藕片/彩椒 共一大盘","香锅酱或豆瓣酱½勺","蒜·干辣椒·花椒","油1茶匙"],steps:["蔬菜焯水断生沥干","1茶匙油爆蒜和干辣椒花椒，下酱炒香","下虾仁炒到变红","下蔬菜大火翻匀，撒熟芝麻"]},
+{name:"酸汤瘦牛肉",tag:"红肉每周≤1次·金汤开胃",ingrList:["瘦牛肉片生重160g","金针菇1把","酸汤酱或泡椒+白醋","姜·蒜","葱花"],steps:["少许油爆姜蒜，下酸汤酱炒香加2碗水煮开","下金针菇煮2分钟","下牛肉片烫到变色就关火(久煮会老)","撒葱花，连汤配糙米"]},
+{name:"干锅风花菜鸡片",tag:"干香微辣·花菜吸味",ingrList:["鸡胸生重140g","花菜1颗","蒜·干辣椒","生抽1勺","油1茶匙"],steps:["花菜掰小朵焯2分钟沥干","鸡胸切片生抽腌10分钟","1茶匙油煎鸡片变色","下花菜干辣椒大火炒香，生抽调味"]},
+{name:"豆豉蒸鸡腿",tag:"广式豉香·蒸的免油烟",ingrList:["去皮鸡腿生重180g","豆豉1勺剁碎","蒜末·姜丝","生抽1勺·淀粉","几滴油"],steps:["鸡腿切块，全部调料抓匀腌15分钟","平铺盘中","水开大火蒸13分钟","撒葱花，配蚝油生菜和玉米"]},
+{name:"黑椒香煎三文鱼",tag:"omega-3收官·每周1次",ingrList:["三文鱼排生重180g","盐·粗黑胡椒","蒜末","柠檬","橄榄油1茶匙"],steps:["鱼排擦干，盐+大量黑胡椒抹匀","1茶匙油中火皮朝下煎3–4分钟，翻面2–3分钟","关火撒蒜末挤柠檬","配蒜蓉西兰花和红薯"]}],
+lunches:[
+{name:"凉拌鸡丝荞麦面",tag:"冷面·夏天神器",ingrList:["荞麦面1把(干重70g)","鸡胸生重120g","黄瓜丝","料汁：生抽+香醋+蒜末+少许辣椒油"],steps:["鸡胸冷水煮开焖12分钟，手撕成丝","荞麦面煮熟过凉水沥干","调料汁","面+鸡丝+黄瓜丝淋汁拌匀"]},
+{name:"虾仁蛋炒糙米饭",tag:"剩饭再就业·少油版",ingrList:["隔夜糙米饭1碗","虾仁生重100g","鸡蛋1个","葱花·冷冻豌豆一把","生抽","油1茶匙"],steps:["半茶匙油炒散鸡蛋盛出","半茶匙油炒虾仁到变红","下饭和豌豆炒散","回鸡蛋，生抽沿锅边淋入炒匀"]},
+{name:"番茄金枪鱼全麦意面",tag:"omega-3·橄榄油",ingrList:["全麦意面干重80g","水浸金枪鱼罐头1罐","番茄罐头半罐或鲜番茄2个","蒜","橄榄油1茶匙"],steps:["意面按包装煮熟留一勺面水","1茶匙橄榄油爆蒜，下番茄熬成酱","下金枪鱼和面水略煮","拌入意面，黑胡椒调味"]}],
+shop:{"🥩 蛋白":[["龙利鱼 1盒","TT"],["去皮鸡腿 约1.5lb","NF"],["鸡胸肉 约1lb","FB"],["冷冻虾仁 约1lb","TT"],["瘦牛肉片 约½lb","TT"],["三文鱼排 约¾lb","FB"],["金枪鱼罐头 1罐","NF"],["鸡蛋 1打","NF"]],
+"🥬 蔬菜":[["油麦菜/生菜 各1把","TT"],["杭椒或青椒 6根","TT"],["花菜 2颗","NF"],["藕(可省)","TT"],["彩椒 2个","NF"],["金针菇 1把","TT"],["番茄 4个","NF"],["黄瓜 2根","NF"],["西兰花 1颗","NF"],["玉米 2根","NF"]],
+"🍚 主食/杂粮":[["荞麦面 1包","TT"],["全麦意面 1盒","NF"],["红薯 2lb","NF"],["糙米(有货可跳过)","TT"]],
+"🥛 早餐/加餐":[["无糖豆浆 1.89L","TT"],["无糖希腊酸奶 750g","NF"],["蓝莓 1盒","FB"],["香蕉+苹果","NF"],["小番茄 1盒","NF"],["核桃(有货可跳过)","NF"]],
+"🧂 调味/其他":[["剁椒 1瓶","TT"],["豆豉 1包","TT"],["酸汤酱/泡椒 1瓶","TT"],["香锅酱(可用豆瓣酱代)","TT"],["姜蒜葱","NF"],["其余已备","TT"]]}}
+]};
+
+function $(s){return document.querySelector(s)}
+var ST={planWeek:1,menuWeek:1,theme:'light',shop:{},favs:{},days:{},weights:[],hideBought:false,store:'all'};
+function save(){var s=JSON.stringify(ST);try{localStorage.setItem('hp12',s)}catch(e){}try{if(window.storage)window.storage.set('hp12',s)}catch(e){}}
+async function load(){var s=null;try{s=localStorage.getItem('hp12')}catch(e){}
+  if(!s){try{if(window.storage){var r=await window.storage.get('hp12');if(r)s=r.value}}catch(e){}}
+  if(s){try{var o=JSON.parse(s);for(var k in o)ST[k]=o[k]}catch(e){}}}
+var curMode='plan';
+function week(){for(var i=0;i<DATA.weeks.length;i++){if(DATA.weeks[i].n===ST.menuWeek)return DATA.weeks[i]}return DATA.weeks[0]}
+
+function tg(){ST.theme=(document.documentElement.getAttribute('data-theme')==='dark')?'light':'dark';
+  document.documentElement.setAttribute('data-theme',ST.theme);save();}
+
+function renderWeekSel(){
+  var box=$('#weeksel');box.innerHTML='';
+  var show=(curMode==='menu'||curMode==='prep'||curMode==='shop');
+  box.className='weeksel'+(show?'':' hide');if(!show)return;
+  DATA.weeks.forEach(function(w){var b=document.createElement('button');
+    b.className='wk'+(w.n===ST.menuWeek?' on':'');b.textContent='第'+w.n+'周·'+w.theme;
+    b.onclick=function(){ST.menuWeek=w.n;save();render()};box.appendChild(b);});
+}
+
+function menuHTML(){
+  var w=week(),h='<h2>第'+w.n+'周 · '+w.theme+'</h2><p class="hint">'+w.sub+'<br>👨‍🍳 一周买一次、备餐日一次做好，照着每天吃；点午餐/晚餐能看做法。哪些批量做、哪些现做见「🥘备餐」；顺序只是建议，拿哪盒吃哪盒 👌 第5–12周菜单：到时候把这4套轮换着吃，或每周把体重和感受发给我，我给你换新菜单。</p>';
+  w.days.forEach(function(d){
+    h+='<div class="day"><div class="dh">周'+d.d+' <span class="kcal">≈1500大卡 · 蛋白95–110g</span></div>';
+    h+='<div class="meal"><span class="ml">早</span><span>'+d.bf+'</span></div>';
+    h+='<button class="din" onclick="openCook(\''+d.lc+'\','+d.li+','+(d.lt==='lo'?1:0)+')"><span class="ml ml-l">午</span><span class="dintxt">'+d.lunchText+'</span><span class="see">看做法 ›</span></button>';
+    h+='<button class="din" onclick="openCook(\'d\','+d.di+',0)"><span class="ml ml-d">晚</span><span class="dintxt">'+d.dinner+'</span><span class="see">看做法 ›</span></button>';
+    h+='<div class="meal"><span class="ml">加</span><span>'+d.snack+'</span></div></div>';
+  });
+  return h;
+}
+
+function prepHTML(){
+  var w=week(),fresh=w.fresh||[],batch=[];
+  w.dinners.forEach(function(r,i){if(fresh.indexOf(i)<0)batch.push(i)});
+  var h='<h2>第'+w.n+'周 · 备餐日 🥘</h2>';
+  h+='<p class="hint">一周买一次、做一次：备餐日花约1.5–2小时把耐放的做好，一周热着吃；不耐放的吃当天几分钟现做。点菜名看做法。</p>';
+  h+='<div class="sech">🍚 一次做好这些（批量·分装冷藏/冷冻）</div><div class="pchips">';
+  batch.forEach(function(i){h+='<button class="pchip" onclick="openCook(\'d\','+i+',0)">'+w.dinners[i].name+' ›</button>'});
+  h+='<span class="pnote">+ 一大锅糙米饭、烤一盘红薯、焯或快炒一大盘耐放菜（西兰花·彩椒·胡萝卜）、水煮蛋一次煮6个</span></div>';
+  h+='<div class="card"><b>备餐日流程</b><ol class="pflow">'
+   +'<li>先焖上<b>一大锅糙米饭</b>（够一周），分小盒冷藏/冷冻</li>'
+   +'<li>这周的<b>鸡肉一次腌好</b>，一锅接一锅煎/烤/蒸做完，分装</li>'
+   +'<li>炖上一锅<b>「硬菜」</b>（上面那些耐放的），当本周主力</li>'
+   +'<li>红薯烤一盘；耐放蔬菜焯或快炒一大盘；水煮蛋煮6个</li>'
+   +'<li><b>做几份就当场分几盒（一盒=一餐）</b>，别留大锅里吃时现盛——现盛量会越来越大。贴日期：周一~周四冷藏，周五~周日冷冻</li>'
+   +'<li>吃前一晚把冷冻的移冷藏解冻；吃时微波<b>热透</b></li></ol></div>';
+  h+='<div class="sech">🥬 这几样趁新鲜现做（吃当天几分钟）</div><div class="pchips">';
+  fresh.forEach(function(i){h+='<button class="pchip fresh" onclick="openCook(\'d\','+i+',0)">'+w.dinners[i].name+' ›</button>'});
+  h+='<span class="pnote">+ 每餐一把<b>绿叶菜</b>现焯或快炒（青菜久放会蔫）；虾、蒸蛋、鱼类现做口感最好也更安全</span></div>';
+  h+='<div class="card">🧊 <b>保存 & 加热：</b>熟食冷藏<b>3–4天</b>、冷冻2–3周。米饭和肉类微波<b>热透</b>再吃。三文鱼建议当天煎当天吃，隔顿会腥。</div>';
+  return h;
+}
+
+var STLAB={NF:'No Frills',FB:'Food Basics',TT:'大统华'};
+function chip(code,label){return '<button class="stchip'+(ST.store===code?' on':'')+'" data-c="'+code+'" onclick="filterStore(\''+code+'\')">'+label+'</button>'}
+function shopHTML(){
+  var w=week(),h='<h2>第'+w.n+'周 · 买菜</h2>';
+  h+='<div class="shopbar"><div class="pbar"><i id="pfill"></i></div><span id="pcount"></span>'
+   +'<label class="tog"><input type="checkbox" id="hb"'+(ST.hideBought?' checked':'')+' onchange="toggleHide()"> 只看没买的</label>'
+   +'<button class="resetbtn" onclick="resetShop()">清空本周</button></div>';
+  h+='<div class="stchips">'+chip('all','全部')+chip('NF','No Frills')+chip('FB','Food Basics')+chip('TT','大统华 T&T')+'</div>';
+  h+='<div class="stlegend">🏪 <b>No Frills</b>=肉·蛋·常见蔬果最便宜(用PC Optimum攒积分) · <b>Food Basics</b>=看传单比价,鸡胸/三文鱼常有特价 · <b>大统华T&T</b>=中式蔬菜·豆腐·冷冻海鲜·酱料。💰 本周预估 $70–85(一人),月合计约$300上下,在你预算内。</div>';
+  var idx=0;
+  for(var grp in w.shop){
+    h+='<div class="shopgroup"><h5>'+grp+'</h5><ul class="shoplist">';
+    w.shop[grp].forEach(function(pair){
+      var key='w'+w.n+'_'+idx;idx++;var done=ST.shop[key]?' done':'';
+      h+='<li class="buy'+done+'" data-key="'+key+'" data-s="'+pair[1]+'" onclick="toggleBuy(this)"><span class="box"></span><span class="txt">'+pair[0]+'</span><span class="stbadge st-'+pair[1]+'">'+STLAB[pair[1]]+'</span></li>';
+    });
+    h+='</ul></div>';
+  }
+  return h;
+}
+function toggleBuy(li){li.classList.toggle('done');ST.shop[li.dataset.key]=li.classList.contains('done');save();applyFilters();updateProg();}
+function toggleHide(){ST.hideBought=$('#hb').checked;save();applyFilters();}
+function filterStore(c){ST.store=c;save();document.querySelectorAll('.stchip').forEach(function(b){b.classList.toggle('on',b.dataset.c===c)});applyFilters();updateProg();}
+function applyFilters(){document.querySelectorAll('#panel .buy').forEach(function(li){
+  var hide=(ST.store!=='all'&&li.dataset.s!==ST.store)||(ST.hideBought&&li.classList.contains('done'));
+  li.classList.toggle('hidden',hide);})}
+function updateProg(){var a=[].slice.call(document.querySelectorAll('#panel .buy')).filter(function(li){return ST.store==='all'||li.dataset.s===ST.store});
+  var t=a.length,n=a.filter(function(li){return li.classList.contains('done')}).length;
+  var f=$('#pfill');if(f)f.style.width=(t?Math.round(n/t*100):0)+'%';
+  var c=$('#pcount');if(c)c.textContent='已买 '+n+'/'+t;}
+function resetShop(){var w=week();for(var k in ST.shop){if(k.indexOf('w'+w.n+'_')===0)delete ST.shop[k]}save();render();}
+
+function openCook(coll,idx,lo){
+  var w=week(),r=coll==='l'?w.lunches[idx]:w.dinners[idx];
+  var h='<div class="ovbar"><button class="ovback" onclick="closeCook()">‹ 返回</button><span class="ovtitle">'+r.name+'</span>'
+   +'<button class="ovwake" id="wakebtn" onclick="toggleWake()">🔆 常亮</button></div><div class="ovbody">';
+  h+='<div class="rtag2">'+r.tag+'</div>';
+  if(lo)h+='<div class="lonote">💡 这是<b>备餐日</b>做好的《'+r.name+'》——从冰箱拿一盒<b>热透</b>就行 👍 想现做的话，食谱在下面。</div>';
+  h+='<h3>🧺 材料（生重·1人份）</h3><ul class="ingr-list">';
+  r.ingrList.forEach(function(it){h+='<li onclick="this.classList.toggle(\'got\')"><span class="cb"></span><span>'+it+'</span></li>'});
+  h+='</ul><h3>👩‍🍳 做法（点一步划掉一步）</h3><ol class="steps">';
+  r.steps.forEach(function(s,i){h+='<li onclick="this.classList.toggle(\'done\')"><span class="sn">'+(i+1)+'</span><span>'+s+'</span></li>'});
+  h+='</ol>';
+  var fav=ST.favs[r.name];
+  h+='<button class="favbtn'+(fav?' on':'')+'" data-n="'+r.name+'" onclick="toggleFav(this)">'+(fav?'♥ 已收藏':'♡ 收藏这道菜')+'</button></div>';
+  var ov=$('#overlay');ov.innerHTML=h;ov.classList.add('open');document.body.style.overflow='hidden';
+}
+function closeCook(){$('#overlay').classList.remove('open');document.body.style.overflow='';releaseWake();}
+function toggleFav(btn){var n=btn.dataset.n,on=!ST.favs[n];ST.favs[n]=on;save();
+  btn.classList.toggle('on',on);btn.textContent=on?'♥ 已收藏':'♡ 收藏这道菜';}
+var wl=null;
+function toggleWake(){var btn=$('#wakebtn');if(wl){releaseWake();return}
+  if(!('wakeLock' in navigator)){btn.textContent='本机不支持';return}
+  navigator.wakeLock.request('screen').then(function(s){wl=s;btn.classList.add('on');btn.textContent='🔆 常亮·开';
+    wl.addEventListener('release',function(){btn.classList.remove('on');btn.textContent='🔆 常亮';wl=null});}).catch(function(){btn.textContent='开启失败'});}
+function releaseWake(){if(wl){try{wl.release()}catch(e){}wl=null}var b=$('#wakebtn');if(b){b.classList.remove('on');b.textContent='🔆 常亮'}}
+document.addEventListener('visibilitychange',function(){if(wl&&document.visibilityState==='visible'){navigator.wakeLock.request('screen').then(function(s){wl=s}).catch(function(){})}});
+
+// ---------- 计划页 ----------
+function phaseFor(w){if(w<=4)return'阶段一 · 建立习惯';if(w<=8)return'阶段二 · 稳定执行';return'阶段三 · 评估决策';}
+var R=48,CIRC=2*Math.PI*R;
+function planHTML(){
+  var w=ST.planWeek,pct=w/12;
+  var h='<div class="card"><div class="ring-wrap"><div class="ring"><svg viewBox="0 0 110 110">'
+   +'<circle class="track" cx="55" cy="55" r="'+R+'"></circle>'
+   +'<circle class="prog" cx="55" cy="55" r="'+R+'" style="stroke-dasharray:'+CIRC+';stroke-dashoffset:'+(CIRC*(1-pct))+'"></circle>'
+   +'</svg><div class="num"><b>'+w+'</b><span>/ 12 周</span></div></div>'
+   +'<div><div class="phase-tag">'+phaseFor(w)+'</div><div class="week-controls">'
+   +'<button onclick="stepWeek(-1)">−</button><span class="muted">调整当前周数</span><button onclick="stepWeek(1)">+</button>'
+   +'</div></div></div></div>';
+  h+='<div class="card"><h3 style="margin-top:0">🗺️ 三阶段总览</h3><table>'
+   +'<tr><th>第1–4周</th><td>建立习惯:适应热量目标,记录饮食,养成走路+力量训练的节奏。菜单用「豆香高纤」前两套轮换。</td></tr>'
+   +'<tr><th>第5–8周</th><td>稳定执行:巩固习惯,「清爽粤式」「下饭微辣」接着轮换避免厌倦,看体重趋势而非单日波动。</td></tr>'
+   +'<tr><th>第9–12周</th><td>评估决策:复查体重/血脂趋势,决定继续生活方式为主,还是和医生讨论药物辅助。</td></tr>'
+   +'</table></div>';
+  h+='<div class="card"><h3 style="margin-top:0">🎯 核心目标</h3><div class="pill-list">'
+   +'<span class="pill">1400–1600 kcal/天</span><span class="pill">蛋白质 95–110g</span>'
+   +'<span class="pill">每周减 0.5–0.7kg</span><span class="pill">预算 $200–400/月</span></div></div>';
+  h+='<div class="card"><h3 style="margin-top:0">⚖️ 体重记录</h3><p class="muted" style="margin-top:-4px">建议每周固定一天记一次,方便我们跟进调整</p>'
+   +'<div class="input-row"><input type="date" id="wDate"><input type="number" id="wVal" placeholder="kg" step="0.1"><button onclick="addWeight()">记录</button></div>'
+   +'<div id="wList"></div><p class="muted" id="wEmpty">还没有记录,记第一条开始跟踪趋势</p></div>';
+  return h;
+}
+function stepWeek(d){ST.planWeek=Math.max(1,Math.min(12,ST.planWeek+d));save();render();}
+function todayStr(){var d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+function renderWeightWidget(){
+  var wDate=$('#wDate'),wList=$('#wList'),wEmpty=$('#wEmpty');
+  if(!wDate)return;
+  wDate.value=wDate.value||todayStr();
+  var sorted=ST.weights.slice().sort((a,b)=>a.date.localeCompare(b.date));
+  wEmpty.style.display=sorted.length?'none':'block';
+  wList.innerHTML=sorted.slice().reverse().map(function(entry){
+    var i=sorted.findIndex(e=>e.date===entry.date&&e.weight===entry.weight),prev=sorted[i-1],dh='';
+    if(prev){var diff=entry.weight-prev.weight,cls=diff<=0?'down':'up',sign=diff>0?'+':'';
+      dh='<span class="delta '+cls+'">'+sign+diff.toFixed(1)+'kg</span>';}
+    return '<div class="weight-row"><span class="d">'+entry.date+'</span><span><span class="v">'+entry.weight+'kg</span>'+dh+'</span></div>';
+  }).join('');
+}
+function addWeight(){
+  var d=$('#wDate').value||todayStr(),v=parseFloat($('#wVal').value);
+  if(!v||v<=0)return;
+  ST.weights=ST.weights.filter(e=>e.date!==d);ST.weights.push({date:d,weight:v});save();
+  $('#wVal').value='';renderWeightWidget();
+}
+
+// ---------- 运动页 ----------
+var DOWS=['一','二','三','四','五','六','日'];
+function moveHTML(){
+  var h='<div class="card"><h3 style="margin-top:0">🏋️ 本周打卡</h3><p class="muted" style="margin-top:-4px">点击方块标记完成情况(数据会保存)</p><div class="day-grid" id="dayGrid"></div>'
+   +'<button class="resetbtn" style="margin-top:10px" onclick="resetDays()">重置本周打卡</button></div>';
+  h+='<div class="card"><h3 style="margin-top:0">🗓️ 每周安排模板</h3><table>'
+   +'<tr><th>一/三/五/日</th><td>快走30–40分钟(可拆两段15–20分钟)</td></tr>'
+   +'<tr><th>二 或 四</th><td>力量训练#1 · 全身30–40分钟</td></tr>'
+   +'<tr><th>六</th><td>力量训练#2 · 全身30–40分钟</td></tr></table>'
+   +'<p class="muted">力量训练可以先从自重+家用哑铃的全身动作开始(深蹲、俯卧撑变式、划船、臀桥)。想要具体动作清单告诉我,我再列。</p></div>';
+  return h;
+}
+function renderDayGrid(){
+  var el=$('#dayGrid');if(!el)return;
+  el.innerHTML=DOWS.map(function(d,i){
+    return '<div class="day-cell'+(ST.days[i]?' on':'')+'" onclick="toggleDay('+i+')"><span>'+d+'</span><span class="dot"></span></div>';
+  }).join('');
+}
+function toggleDay(i){ST.days[i]=!ST.days[i];save();renderDayGrid();}
+function resetDays(){ST.days={};save();renderDayGrid();}
+
+// ---------- 说明页 ----------
+function infoHTML(){
+  return '<div class="note">📲 <b>把它装到手机主屏,像App一样用:</b><br>'
+  +'<b>iPhone(Safari):</b>打开网页→点底部「分享」⬆️→「添加到主屏幕」。<br>'
+  +'<b>安卓(Chrome):</b>右上角「⋮」→「添加到主屏幕/安装应用」。<br>装好后你的勾选、收藏、体重记录都会留在这台设备上。</div>'
+  +'<div class="note">🍱 <b>你的节奏:一周买一次、做一次。</b>去「🥘备餐」页看备餐日一次要做好哪些、怎么分装冷藏冷冻;只有绿叶菜/虾/蒸蛋这类不耐放的,吃当天现做几分钟。「🍽️菜单」里午餐晚餐都能点开看做法。</div>'
+  +'<h3>💊 什么时候该讨论药物辅助</h3><div class="card">建议在第12周末系统复盘。如果出现以下情况,值得主动和医生讨论,而不是自己硬撑:'
+  +'<ul class="clean"><li>严格执行热量/运动计划8周以上,体重几乎没变化</li><li>持续强烈饥饿感、暴食冲动,难以维持依从性</li><li>血脂复查没有改善甚至恶化</li></ul>'
+  +'生活方式调整和药物并不矛盾,只是介入时机的问题——最终交给医生判断。</div>'
+  +'<h3>🌙 晚上饿了/嘴馋 · 按阶梯来</h3><div class="card"><ol class="pflow">'
+  +'<li>先喝一大杯水或无糖茶,等10分钟(很多"饿"其实是渴或无聊)</li>'
+  +'<li>还想吃→黄瓜条/小番茄/一把毛豆</li>'
+  +'<li>再不行→无糖希腊酸奶一小盒</li>'
+  +'<li>真的饿→把明天的蛋白提前吃一份,正常吃、别有负罪感</li></ol>'
+  +'<p><b>铁律:永远不硬扛饿</b>——硬扛的尽头是暴食。一次吃多了不算失败,下一顿正常吃回来就行。</p></div>'
+  +'<h3>🍽️ 外食怎么点 · 小抄</h3><div class="card"><ul class="clean">'
+  +'<li><b>通用三步:</b>先挑蛋白(鸡/鱼/虾)→配大份蔬菜→主食减半</li>'
+  +'<li><b>中餐外卖:</b>选蒸、炒、白灼;躲开糖醋/锅包类,饭吃一半</li>'
+  +'<li><b>Chipotle类:</b>选碗别选卷饼:鸡肉+法士达蔬菜+豆子+莎莎+生菜,米减半、酸奶油别加</li>'
+  +'<li><b>粉面汤类:</b>选清汤,肉挑鸡/瘦牛,面吃一半</li>'
+  +'<li><b>心态:</b>一顿外食毁不了一周——点得聪明就是赢,回家不用"补罚"</li></ul></div>'
+  +'<h3>🧯 摆烂日底线 & 旅行周模式</h3><div class="card"><ul class="clean">'
+  +'<li><b>摆烂日底线:</b>再乱的一天,只要做到「每餐有蛋白有菜+没喝含糖饮料」=及格✅。要的是80分的84天,不是100分的20天</li>'
+  +'<li><b>两条铁律:</b>一顿吃多不算数,只有"连续"才算;永远别连着两顿放弃</li>'
+  +'<li><b>计划内解馋餐:</b>每1–2周主动安排一顿想吃的——写进计划的放纵不叫破功,是泄压阀</li>'
+  +'<li><b>旅行/出差=维持模式:</b>只守三条——每餐蛋白+蔬菜、不喝含糖饮料、能走就多走。不求掉秤,回家继续</li></ul></div>'
+  +'<h3>🍳 早餐轮换池(每份约350–450大卡)</h3><div class="pool">'
+  +'<div class="poolcard"><b>①燕麦豆浆蛋</b><br>燕麦+无糖豆浆+水煮蛋+蓝莓</div>'
+  +'<div class="poolcard"><b>②酸奶燕麦碗</b><br>希腊酸奶+燕麦+核桃+香蕉</div>'
+  +'<div class="poolcard"><b>③番茄炒蛋吐司</b><br>少油番茄炒蛋+全麦吐司+无糖豆浆</div>'
+  +'<div class="poolcard"><b>④蔬菜蛋饼</b><br>胡萝卜菠菜鸡蛋饼(少油)+无糖豆浆</div>'
+  +'<div class="poolcard"><b>⑤鸡丝燕麦粥</b><br>鸡丝香菇燕麦粥+凉拌黄瓜</div>'
+  +'<div class="poolcard"><b>⑥花生酱吐司</b><br>天然花生酱薄涂全麦吐司+酸奶+苹果</div></div>'
+  +'<h3>🍎 加餐随便选</h3><div class="card">无糖希腊酸奶 · 毛豆一把 · 黄瓜/胡萝卜条 · 苹果+几颗核桃 · 无糖豆浆 · 小番茄(任选一样)</div>'
+  +'<h3>🥢 选材 & 血脂友好原则</h3><div class="card"><ul class="clean">'
+  +'<li><b>整体饮食质量比单一营养素更重要:</b>尽量向更多植物性食物倾斜,减少饱和脂肪摄入</li>'
+  +'<li><b>多吃可溶性膳食纤维</b>(燕麦、豆类)、坚果、大豆蛋白;<b>少吃</b>红肉/加工肉、全脂乳制品、黄油</li>'
+  +'<li><b>油:</b>烹调优先橄榄油/菜籽油,每餐约1茶匙,多用蒸/炖/白灼/快炒代替煎炸</li>'
+  +'<li><b>深海鱼</b>(三文鱼、罐头鱼)每周1–2次补充omega-3</li>'
+  +'<li>参考:加拿大心脏与中风基金会(Heart & Stroke Foundation)饮食建议</li></ul></div>'
+  +'<h3>⚖️「蛋白质克数」怎么算</h3><div class="card"><p>「蛋白95–110g」是<b>蛋白质这个营养素</b>的克数,<b>不是</b>肉的重量。食谱分量都按<b>生重</b>标(下锅前称);肉煮熟缩水约¼,但蛋白质总量几乎不变。</p>'
+  +'<table><tr><th>常见食材(生重100g)</th><th>约含蛋白</th></tr>'
+  +'<tr><td>鸡胸肉</td><td class="kcal">≈23g</td></tr><tr><td>虾/鱼</td><td class="kcal">≈20g</td></tr>'
+  +'<tr><td>瘦牛/猪</td><td class="kcal">≈20g</td></tr><tr><td>老豆腐</td><td class="kcal">≈8g</td></tr>'
+  +'<tr><td>鸡蛋1个</td><td class="kcal">≈6–7g</td></tr><tr><td>无糖希腊酸奶100g</td><td class="kcal">≈9–10g</td></tr></table></div>'
+  +'<div class="disclaimer">⚠️ 本页面内容仅供参考规划使用,不构成医疗建议,不能替代医生或注册营养师的专业判断。任何用药决定请与医生确认。</div>'
+  +'<div class="foot2">这页只管吃穿动 😋。每周把体重记录发给我,加上这周感觉怎么样(饿不饿、坚持得住吗),我根据反馈调整下一步——加/减热量、换菜式、加大运动量。</div>';
+}
+
+// ---------- 总渲染 ----------
+function render(){
+  renderWeekSel();var p=$('#panel');
+  if(curMode==='plan')p.innerHTML=planHTML();
+  else if(curMode==='menu')p.innerHTML=menuHTML();
+  else if(curMode==='prep')p.innerHTML=prepHTML();
+  else if(curMode==='shop'){p.innerHTML=shopHTML();applyFilters();updateProg();}
+  else if(curMode==='move')p.innerHTML=moveHTML();
+  else p.innerHTML=infoHTML();
+  document.querySelectorAll('nav.tabbar button').forEach(function(b){b.classList.toggle('on',b.dataset.m===curMode)});
+  if(curMode==='plan')renderWeightWidget();
+  if(curMode==='move')renderDayGrid();
+  window.scrollTo(0,0);
+}
+function setMode(m){curMode=m;render();}
+
+(async function init(){
+  await load();
+  if(ST.theme==='dark')document.documentElement.setAttribute('data-theme','dark');
+  render();
+})();
+</script>
+</body>
+</html>
